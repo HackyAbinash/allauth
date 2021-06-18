@@ -1,0 +1,304 @@
+<!doctype html>
+<html>
+<head>
+<title>demo</title>
+</head>
+<body>
+<h1 align="center">Sign Up</h1>
+<label>Name</label>
+<input name="name" type="text" id="name" placeholder="Enter Name"/>
+<label>Email</label>
+<input name="email" type="email" id="email" placeholder="Enter Email"/>
+<label>Password</label>
+<input name="password" type="password" id="password" placeholder="Enter password"/>
+<button type="button" id="signup">SIGN UP</button>
+<button type="button" id="verifyemail">VerifyEmail</button>
+<br><hr>
+<h1 align="center">Sign In</h1>
+<label>Email</label>
+<input name="email" type="email" id="email-signin" placeholder="Enter Email"/>
+<label>Email</label>
+<input name="password-signin" type="password" id="password-signin" placeholder="Enter password"/>
+<button type="button" id="signin">SIGN IN</button><br><hr>
+<label>Reset Password</label>
+<input name="email" type="email" id="resetemail" placeholder="Enter Email"/>
+<button type="button" id="resetpwd">Reset Password</button>
+<br><hr>
+<button type="button" id="google">google</button>
+<button type="button" id="facebook">Facebook</button>
+<button type="button" id="annonymous">Annonymous Login</button>
+<br><hr>
+phone number<input name="number" type="text" id="number" placeholder="enter number">
+<div id="captcha"></div>
+<button type="button" id="sendotpbtn">send otp</button>
+<br>
+enter otp<input name="number" type="text" id="otp" placeholder="enter number">
+<button type="button" id="verifyotpbtn">verify otp</button>
+
+
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/8.6.7/firebase.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/8.6.7/firebase-analytics.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/8.6.7/firebase-auth.js"></script>
+
+ <script>
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  var firebaseConfig = {
+    apiKey: "AIzaSyCaaOUXjW6OPQGz3tTFTvvbCmX9aIHw7jU",
+    authDomain: "fir-tutorial-2a080.firebaseapp.com",
+    projectId: "fir-tutorial-2a080",
+    storageBucket: "fir-tutorial-2a080.appspot.com",
+    messagingSenderId: "192239294525",
+    appId: "1:192239294525:web:86bb02ec3ce9ee2533f254",
+    measurementId: "G-E1YBW43TDS"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  
+  
+  //======signup with email and password======
+  
+  signup.onclick=function(){
+  
+  var email=document.getElementById("email").value;
+  var password=document.getElementById("password").value;
+  var signupbtn=document.getElementById("signup");
+  var username=document.getElementById("name").value;
+  
+  firebase.auth().createUserWithEmailAndPassword(email, password)
+  .then((userCredential) => {
+    alert("user registration successfully");
+    var id=firebase.auth().currentUser.uid;
+    firebase.database().ref("UserInfo/"+id).set({
+       
+        FullName:username,
+        Email:email,
+        Password:password,
+       
+
+    });
+  })
+  .catch((error) => {
+    alert("Enter Email & Password");
+    var errorCode = error.code;
+    var errorMessage = error.message;
+	
+    // ..
+  });
+  
+  }
+  
+  //=========signin with email and password=====
+  
+  signin.onclick=function(){
+  
+  var email=document.getElementById("email-signin").value;
+  var password=document.getElementById("password-signin").value;
+  var signinbtn=document.getElementById("signin");
+  
+  firebase.auth().signInWithEmailAndPassword(email, password)
+  .then((userCredential) => {
+    // Signed in
+	alert("signin succesfully");
+    console.log(userCredential);
+    var user = userCredential.user;
+
+    // ...
+  })
+  .catch((error) => {
+    var errorCode = error.code;
+    var errorMessage = error.message;
+  });
+  
+  
+  }
+  
+  //=======password reset=====
+  
+  
+  
+  
+  resetpwd.onclick=function(){
+  resetemail=document.getElementById("resetemail").value;
+  // [START auth_send_password_reset]
+  firebase.auth().sendPasswordResetEmail(resetemail)
+    .then(() => {
+      // Password reset email sent!
+      alert("reset password send");
+    })
+    .catch((error) => {
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      // ..
+    });
+  // [END auth_send_password_reset]
+
+  }
+  
+  //=====verify email======
+  
+  verifyemail.onclick=function(){
+ 
+  // [START auth_send_email_verification]
+  firebase.auth().currentUser.sendEmailVerification()
+    .then(() => {
+      // Email verification sent!
+	  alert("email send");
+      // ...
+    });
+  // [END auth_send_email_verification]
+}
+
+//======google login=====
+
+google.onclick=function(){
+var provider = new firebase.auth.GoogleAuthProvider();
+
+firebase.auth()
+    .signInWithPopup(provider)
+    .then((result) => {
+      /** @type {firebase.auth.OAuthCredential} */
+      var credential = result.credential;
+
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      var token = credential.accessToken;
+      // The signed-in user info.
+      var user = result.user;
+      // ...
+    }).catch((error) => {
+      // Handle Errors here.
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      // The email of the user's account used.
+      var email = error.email;
+      // The firebase.auth.AuthCredential type that was used.
+      var credential = error.credential;
+      // ...
+    });
+
+
+}
+
+//=====facebook login====
+facebook.onclick=function(){
+var provider = new firebase.auth.FacebookAuthProvider();
+
+ firebase
+    .auth()
+    .signInWithPopup(provider)
+    .then((result) => {
+      /** @type {firebase.auth.OAuthCredential} */
+      var credential = result.credential;
+
+      // The signed-in user info.
+      var user = result.user;
+
+      // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+      var accessToken = credential.accessToken;
+
+      // ...
+    })
+    .catch((error) => {
+      // Handle Errors here.
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      // The email of the user's account used.
+      var email = error.email;
+      // The firebase.auth.AuthCredential type that was used.
+      var credential = error.credential;
+
+      // ...
+    });
+
+}
+
+//=====annonymous login===
+annonymous.onclick=function(){
+firebase.auth().signInAnonymously()
+    .then(() => {
+	alert("success");
+      // Signed in..
+    })
+    .catch((error) => {
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      // ...
+    });
+	
+	
+	firebase.auth().onAuthStateChanged((user) => {
+  if (user) {
+    // User is signed in, see docs for a list of available properties
+    // https://firebase.google.com/docs/reference/js/firebase.User
+    var uid = user.uid;
+    // ...
+  } else {
+    // User is signed out
+    // ...
+  }
+});
+
+}
+
+//======login with phone====
+
+var number=document.getElementById("number");
+var sendotp=document.getElementById("sendotpbtn");
+var otp=document.getElementById("otp");
+var verifyotp=document.getElementById("verifyotpbtn");
+
+sendotpbtn.onclick=function(){
+
+window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('captcha', {
+    'size': 'normal',
+    'callback': (response) => {
+      // reCAPTCHA solved, allow signInWithPhoneNumber.
+      // ...
+    },
+    'expired-callback': () => {
+      // Response expired. Ask user to solve reCAPTCHA again.
+      // ...
+    }
+  });
+
+
+  var appVerifier = window.recaptchaVerifier;
+  firebase.auth().signInWithPhoneNumber(number.value, appVerifier)
+      .then((confirmationResult) => {
+        // SMS sent. Prompt user to type the code from the message, then sign the
+        // user in with confirmationResult.confirm(code).
+        window.confirmationResult = confirmationResult;
+        // ...
+      }).catch((error) => {
+        // Error; SMS not sent
+        // ...
+      });
+
+
+}
+
+verifyotpbtn.onclick=function(){
+
+
+  confirmationResult.confirm(otp.value).then((result) => {
+    // User signed in successfully.
+    const user = result.user;
+    // ...
+  }).catch((error) => {
+    // User couldn't sign in (bad verification code?)
+    // ...
+	alert("login sucess");
+  });
+
+
+}
+
+
+
+  </script>
+</body>
+</html>
